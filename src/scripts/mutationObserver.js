@@ -11,8 +11,6 @@ function startObserver() {
     window.ReactNativeWebView.postMessage('callback');
 
     for (let mutation of mutationsList) {
-      // ******** Holiday bid
-
       if (
         mutation.target.id === 'RosterPositionBid' ||
         mutation.target.id === 'HolidayDetail' ||
@@ -22,12 +20,9 @@ function startObserver() {
         mutation.target.className === 'ListBody'
       ) {
         window.ReactNativeWebView.postMessage('scrape');
-        // config app scrape page
 
         break;
       }
-
-      // ***********
 
       if (
         mutation.type !== 'childList' ||
@@ -48,8 +43,6 @@ function startObserver() {
       }
 
       if (oaDetail) {
-        window.ReactNativeWebView.postMessage('from web oa detail');
-        // config app scrape page
         break;
       }
     }
@@ -77,9 +70,6 @@ function startObserver() {
     window.ReactNativeWebView.postMessage('obsvr callback');
 
     for (let mutation of mutationsList) {
-// ******** Holiday bid
-
-
       if (
         mutation.target.id === 'RosterPositionBid' ||
         mutation.target.id === 'HolidayDetail' ||
@@ -92,8 +82,6 @@ function startObserver() {
         Utils.configureApp();
         break;
       }
-
-// ***********
 
       if (
         mutation.type !== 'childList' ||
@@ -114,8 +102,6 @@ function startObserver() {
       }
 
       if (oaDetail) {
-        window.ReactNativeWebView.postMessage('from web oa detail');
-        // scrape
         Utils.configureApp();
         break;
       }
@@ -126,6 +112,4 @@ function startObserver() {
   const observer = new MutationObserver(callback);
   observer.observe(targetNode, config);
 }
-
-startObserver();
 `;

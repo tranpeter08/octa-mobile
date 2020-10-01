@@ -8,6 +8,8 @@ import mutationObserver from './mutationObserver';
 import eventListener from './eventListener';
 
 const content = `
+insertStylesheet();
+startObserver();
 Utils.configureApp();
 true;
 `;
