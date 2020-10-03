@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, {Component, createContext} from 'react';
 import {StyleSheet, Text, View, Button, TouchableOpacity} from 'react-native';
 import {WebView} from 'react-native-webview';
 import script from '../scripts/injectedJS';
@@ -6,6 +6,9 @@ import StorageService from '../services/Storage';
 import Menu from '../components/Menu';
 import asyncHandlerJSON from '../utils/asyncHandler';
 import FavoritesButton from '../components/FavoritesButton';
+import AsyncStorage from '@react-native-community/async-storage';
+
+export const MainCtx = createContext({});
 
 export default class Webview extends Component {
   state = {
@@ -13,7 +16,7 @@ export default class Webview extends Component {
     showMenu: false,
     employeeId: null,
     menuTitle: null,
-    data: null,
+    collection: null,
   };
 
   webview = React.createRef(null);
@@ -46,11 +49,10 @@ export default class Webview extends Component {
 
         case 'SSA_ENABLE':
           console.log('SSA enabled');
-          console.log('payload: ', payload);
-          this.enableSSA(payload);
+          return this.enableSSA(payload);
 
         case 'ADD_BID':
-
+          this.addBid(payload.bidInfo);
         default:
           return;
       }
@@ -70,18 +72,27 @@ export default class Webview extends Component {
   }
 
   async getAllBids() {
-    const [data, error] = await asyncHandlerJSON(
+    const [collection, error] = await asyncHandlerJSON(
       StorageService.getAllBids(this.state.employeeId)
     );
 
-    if (data) {
-      this.setState({data});
+    if (collection) {
+      this.setState({collection});
     }
   }
 
-  async addBid() {
-    const {employeeId, menuTitle} = this.state;
-    const [data, error] = await asyncHandlerJSON(StorageService.addBid());
+  async addBid(data) {
+    const {employeeId, menuTitle, collection} = this.state;
+    const [done, error] = await asyncHandlerJSON(
+      StorageService.addBid(employeeId, menuTitle, collection, data)
+    );
+
+    if (error) {
+      console.log({error});
+      return alert(error.message);
+    }
+
+    this.getAllBids();
   }
 
   setStateFromWebview(payload) {
@@ -90,9 +101,21 @@ export default class Webview extends Component {
   }
 
   render() {
+    const {menuTitle, collection, employeeId} = this.state;
+
     console.log('state: ', this.state);
+
     return (
-      <>
+      <MainCtx.Provider
+        value={{
+          employeeId,
+          menuTitle,
+          collection,
+          webView: this.webview,
+          toggleMenu: this.toggleMenu,
+          getAllBids: this.getAllBids,
+        }}
+      >
         {this.state.ssaEnabled && (
           <View
             style={{
@@ -134,7 +157,7 @@ export default class Webview extends Component {
           }}
           ref={this.webview}
         />
-      </>
+      </MainCtx.Provider>
     );
   }
 }
