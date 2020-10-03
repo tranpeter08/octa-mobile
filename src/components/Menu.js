@@ -1,12 +1,28 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {StyleSheet, Text, View, Button, TouchableOpacity} from 'react-native';
+import {MainCtx} from '../screens/Webview';
 import SimpleButton from './SimpleButton';
+import BidList from './BidList';
+
+/* 
+bid shape: {
+  [employeeId]: {
+    [menu_title]: [bids],
+    [other_menu_title]: [bids]
+  },
+  [other_employeeId]: {
+    [menu_title]: [bids],
+    [other_menu_title]: [bids]
+  }
+}
+
+*/
 
 export default function Menu(props) {
-  function addBid() {
-    props.webView.current.postMessage('ADD_BID');
+  const {menuTitle, collection, webView, toggleMenu} = useContext(MainCtx);
 
-    // add bid to storage
+  function addBid() {
+    webView.current.postMessage('ADD_BID');
   }
 
   return (
@@ -15,16 +31,20 @@ export default function Menu(props) {
         <SimpleButton
           title="Close"
           style={styles.closeButton}
-          onPress={props.toggleMenu}
+          onPress={toggleMenu}
         />
       </View>
-      <Text style={{textAlign: 'center'}}>Bid List</Text>
+      <Text style={styles.menuHeading}>{menuTitle} Favorites</Text>
+      <BidList />
       <View style={styles.menuButtonContainer}>
-        <SimpleButton title="Clear" style={styles.menuButton} />
+        <SimpleButton
+          title="Clear"
+          style={[styles.menuButton, {marginLeft: 'auto'}]}
+        />
         <SimpleButton
           title="Add"
           onPress={addBid}
-          style={[styles.menuButton, {marginLeft: 'auto'}]}
+          style={[styles.menuButton]}
         />
       </View>
     </View>
@@ -48,6 +68,9 @@ const styles = StyleSheet.create({
   menu: {
     width: 240,
     flex: 1,
+  },
+  menuHeading: {
+    textAlign: 'center',
   },
   menuButtonContainer: {
     display: 'flex',
