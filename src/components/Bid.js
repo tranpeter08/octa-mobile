@@ -7,9 +7,15 @@ import asyncHandlerJSON from '../utils/asyncHandler';
 
 export default function Bid({bidId, daysOff, totalSplit, totalWork}) {
   const {getAllBids, menuTitle, employeeId} = useContext(MainCtx);
-  function handlePress() {
+  async function handlePress() {
     // remove from database and update list
-    Storage.removeBid(employeeId, menuTitle, bidId);
+    const [done, error] = await Storage.removeBid(employeeId, menuTitle, bidId);
+
+    if (error) {
+      return alert(error.message);
+    }
+
+    getAllBids();
   }
 
   return (
