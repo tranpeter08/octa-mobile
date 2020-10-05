@@ -7,17 +7,18 @@ import Menu from '../components/Menu';
 import asyncHandlerJSON from '../utils/asyncHandler';
 import FavoritesButton from '../components/FavoritesButton';
 import AsyncStorage from '@react-native-community/async-storage';
-
-export const MainCtx = createContext({});
+import MainCtx from '../context/MainCtx';
 
 export default class Webview extends Component {
-  state = {
+  defaultState = {
     ssaEnabled: false,
     showMenu: false,
     employeeId: null,
     menuTitle: null,
     collection: null,
   };
+
+  state = this.defaultState;
 
   webview = React.createRef(null);
 
@@ -43,8 +44,6 @@ export default class Webview extends Component {
 
       switch (type) {
         case 'SET_STATE':
-          console.log('set state');
-
           return this.setStateFromWebview(payload);
 
         case 'SSA_ENABLE':
@@ -52,7 +51,14 @@ export default class Webview extends Component {
           return this.enableSSA(payload);
 
         case 'ADD_BID':
-          this.addBid(payload.bidInfo);
+          return this.addBid(payload.bidInfo);
+
+        case 'INIT':
+          if (this.state.ssaEnabled) {
+            this.setState(this.defaultState);
+          }
+
+          return;
         default:
           return;
       }
@@ -71,7 +77,7 @@ export default class Webview extends Component {
     );
   }
 
-  async getAllBids() {
+  getAllBids = async () => {
     const [collection, error] = await asyncHandlerJSON(
       StorageService.getAllBids(this.state.employeeId)
     );
@@ -79,9 +85,9 @@ export default class Webview extends Component {
     if (collection) {
       this.setState({collection});
     }
-  }
+  };
 
-  async addBid(data) {
+  addBid = async (data) => {
     const {employeeId, menuTitle, collection} = this.state;
     const [done, error] = await asyncHandlerJSON(
       StorageService.addBid(employeeId, menuTitle, collection, data)
@@ -93,7 +99,7 @@ export default class Webview extends Component {
     }
 
     this.getAllBids();
-  }
+  };
 
   setStateFromWebview(payload) {
     console.log('setstate from webview');
