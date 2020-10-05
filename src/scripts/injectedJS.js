@@ -6,16 +6,20 @@ import dom from './dom';
 import injectStyle from './insertStyle';
 import mutationObserver from './mutationObserver';
 import eventListener from './eventListener';
+import webview from './webview';
 
 const content = `
 insertStylesheet();
-startObserver();
+Webview.init();
+Observer.start();
 Utils.configureApp();
+
 true;
 `;
 
 export default state +
   config +
+  webview +
   utils +
   components +
   dom +
