@@ -37,7 +37,29 @@ export default {
     try {
       const bidsJSON = await this.getAllBids(employeeId);
       const bids = JSON.parse(bidsJSON);
+      const currentBids = bids[menuTitle];
+      let match = false;
+
       console.log({bids});
+
+      const results = currentBids.filter((bid) => {
+        if (bid.bidId === bidId) {
+          match = true;
+          return false;
+        }
+
+        return true;
+      });
+
+      if (!match) {
+        throw new Error(`Bid not found!`);
+      }
+
+      bids[menuTitle] = results;
+      console.log(bids);
+
+      await AsyncStorage.setItem(employeeId, JSON.stringify(bids));
+      console.log(bids);
 
       return [1, null];
     } catch (error) {
