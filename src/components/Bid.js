@@ -1,7 +1,7 @@
 import React, {useContext} from 'react';
 import {StyleSheet, Text, View, Button, TouchableOpacity} from 'react-native';
 import SimpleButton from './SimpleButton';
-import {MainCtx} from '../screens/Webview';
+import MainCtx from '../context/MainCtx';
 import Storage from '../services/Storage';
 import asyncHandlerJSON from '../utils/asyncHandler';
 

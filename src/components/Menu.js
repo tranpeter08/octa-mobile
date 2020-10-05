@@ -1,6 +1,6 @@
 import React, {useContext} from 'react';
 import {StyleSheet, Text, View, Button, TouchableOpacity} from 'react-native';
-import {MainCtx} from '../screens/Webview';
+import MainCtx from '../context/MainCtx';
 import SimpleButton from './SimpleButton';
 import BidList from './BidList';
 
