@@ -1,4 +1,4 @@
-import React, {Component, createContext} from 'react';
+import React, {Component, createRef, forwardRef, useRef} from 'react';
 import {StyleSheet, Text, View, Button, TouchableOpacity} from 'react-native';
 import {WebView} from 'react-native-webview';
 import script from '../scripts/injectedJS';
@@ -8,6 +8,7 @@ import asyncHandlerJSON from '../utils/asyncHandler';
 import FavoritesButton from '../components/FavoritesButton';
 import AsyncStorage from '@react-native-community/async-storage';
 import MainCtx from '../context/MainCtx';
+import SimpleButton from '../components/SimpleButton';
 
 export default class Webview extends Component {
   defaultState = {
@@ -19,8 +20,8 @@ export default class Webview extends Component {
   };
 
   state = this.defaultState;
-
-  webview = React.createRef(null);
+  webview = createRef({});
+  bidListRef = createRef({});
 
   toggleMenu = (params) => {
     this.setState((state) => {
@@ -83,7 +84,14 @@ export default class Webview extends Component {
     );
 
     if (collection) {
-      this.setState({collection});
+      this.setState(
+        (state) => ({collection}),
+        () => {
+          // scroll to bottom
+          // this.bidListRef.scrollToEnd();
+          console.log('ref: ', this.bidListRef);
+        }
+      );
     }
   };
 
@@ -106,9 +114,12 @@ export default class Webview extends Component {
     this.setState((state) => ({...state, ...payload}));
   }
 
+  setBidListRef = (bidListRef) => {
+    this.bidListRef = bidListRef;
+  };
+
   render() {
     const {menuTitle, collection, employeeId} = this.state;
-
     console.log('state: ', this.state);
 
     return (
@@ -120,33 +131,21 @@ export default class Webview extends Component {
           webView: this.webview,
           toggleMenu: this.toggleMenu,
           getAllBids: this.getAllBids,
+          bidListRef: this.bidListRef,
         }}
       >
         {this.state.ssaEnabled && (
-          <View
-            style={{
-              color: 'white',
-              fontSize: 30,
-              position: 'absolute',
-              bottom: 10,
-              left: 10,
-              zIndex: 1,
-              borderWidth: 1,
-              borderStyle: 'solid',
-              borderColor: 'black',
-              backgroundColor: 'white',
-              padding: 2,
-            }}
-          >
+          <View style={styles.menuContainer}>
             {this.state.showMenu ? (
               <Menu
+                ref={this.bidListRef}
                 webView={this.webview}
                 toggleMenu={this.toggleMenu}
                 data={this.state.data}
                 menuTitle={this.state.menuTitle}
               />
             ) : (
-              <FavoritesButton toggleMenu={this.toggleMenu} />
+              <SimpleButton title="Favorites" onPress={this.toggleMenu} />
             )}
           </View>
         )}
@@ -172,5 +171,11 @@ const styles = StyleSheet.create({
   webView: {
     marginTop: 20,
     flex: 1,
+  },
+  menuContainer: {
+    position: 'absolute',
+    bottom: 10,
+    left: 10,
+    zIndex: 1,
   },
 });
