@@ -4,6 +4,7 @@ import SimpleButton from './SimpleButton';
 import MainCtx from '../context/MainCtx';
 import Storage from '../services/Storage';
 import asyncHandlerJSON from '../utils/asyncHandler';
+import BidDetail from './BidDetail';
 
 export default function Bid({bidId, daysOff, totalSplit, totalWork}) {
   const {getAllBids, menuTitle, employeeId} = useContext(MainCtx);
@@ -19,14 +20,51 @@ export default function Bid({bidId, daysOff, totalSplit, totalWork}) {
   }
 
   return (
-    <>
-      <Text>ID: {bidId}</Text>
-      <Text>Total Work: {totalWork}</Text>
-      <Text>Total Sokit: {totalSplit}</Text>
-      <Text>Days Off: {daysOff.join(', ')}</Text>
-      <SimpleButton title="Remove" onPress={handlePress} />
-    </>
+    <View style={styles.bid}>
+      <BidDetail label="ID" text={bidId} />
+      <View style={styles.bidTimes}>
+        <BidDetail label="Work" text={totalWork} style={styles.spaceAfter} />
+        <BidDetail label="Splits" text={totalSplit} />
+      </View>
+      <BidDetail label="Days Off" text={daysOff.join(', ')} />
+      <View style={styles.removeButtonContainer}>
+        <SimpleButton
+          title="Remove"
+          onPress={handlePress}
+          containerStyle={styles.bidButton}
+          textStyle={styles.bidButtonText}
+        />
+      </View>
+    </View>
   );
 }
 
-const styles = StyleSheet.create({});
+const blue = '#0159c6';
+
+const styles = StyleSheet.create({
+  bid: {
+    backgroundColor: '#fff3d3',
+    marginBottom: 10,
+    padding: 6,
+  },
+  bidTimes: {
+    display: 'flex',
+    flexDirection: 'row',
+  },
+  spaceAfter: {
+    marginRight: 10,
+  },
+  removeButtonContainer: {
+    display: 'flex',
+    flexDirection: 'row',
+  },
+  bidButton: {
+    backgroundColor: '#fff',
+    borderColor: blue,
+    borderWidth: 1,
+    borderStyle: 'solid',
+  },
+  bidButtonText: {
+    color: blue,
+  },
+});
