@@ -1,7 +1,7 @@
 import React, {forwardRef, useContext} from 'react';
 import {StyleSheet, Text, View, Button, TouchableOpacity} from 'react-native';
 import MainCtx from '../context/MainCtx';
-import MenuCtx from '../context/MenuCtx';
+import StorageService from '../services/Storage';
 import SimpleButton from './SimpleButton';
 import BidList from './BidList';
 
@@ -19,11 +19,25 @@ bid shape: {
 
 */
 
-const Menu = forwardRef((props, ref) => {
-  const {menuTitle, collection, webView, toggleMenu} = useContext(MainCtx);
+export default function Menu(props) {
+  const {menuTitle, collection, webView, toggleMenu, employeeId, getAllBids} = useContext(
+    MainCtx
+  );
 
   function addBid() {
     webView.current.postMessage('ADD_BID');
+  }
+
+  async function clearBids() {
+    if (!collection[menuTitle].length) return;
+
+    const [done, err] = await StorageService.clearBids(employeeId, menuTitle, collection);
+
+    if (err) {
+      return alert(err.message);
+    }
+
+    getAllBids();
   }
 
   return (
@@ -36,18 +50,19 @@ const Menu = forwardRef((props, ref) => {
         />
       </View>
       <Text style={styles.menuHeading}>{menuTitle} Favorites</Text>
-      <BidList bidListRef={ref} />
+      <BidList />
       <View style={styles.menuButtonContainer}>
         <SimpleButton
           title="Clear"
           containerStyle={styles.clearButtonContainer}
           textStyle={styles.clearButtonTextStyle}
+          onPress={clearBids}
         />
         <SimpleButton title="Add" onPress={addBid} />
       </View>
     </View>
   );
-});
+}
 
 const blue = '#0159c6';
 
@@ -90,5 +105,3 @@ const styles = StyleSheet.create({
     color: blue,
   },
 });
-
-export default Menu;
