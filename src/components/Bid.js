@@ -1,15 +1,14 @@
 import React, {useContext} from 'react';
-import {StyleSheet, Text, View, Button, TouchableOpacity} from 'react-native';
+import {StyleSheet,View} from 'react-native';
 import SimpleButton from './SimpleButton';
 import MainCtx from '../context/MainCtx';
 import Storage from '../services/Storage';
-import asyncHandlerJSON from '../utils/asyncHandler';
 import BidDetail from './BidDetail';
+import {blue} from './styles/colors';
 
 export default function Bid({bidId, daysOff, totalSplit, totalWork}) {
   const {getAllBids, menuTitle, employeeId, collection} = useContext(MainCtx);
   async function handleRemove() {
-    // remove from database and update list
     const [done, error] = await Storage.removeBid(
       bidId,
       employeeId,
@@ -43,8 +42,6 @@ export default function Bid({bidId, daysOff, totalSplit, totalWork}) {
     </View>
   );
 }
-
-const blue = '#0159c6';
 
 const styles = StyleSheet.create({
   bid: {
