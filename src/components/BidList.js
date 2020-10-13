@@ -1,4 +1,10 @@
-import React, {useContext, useRef, forwardRef} from 'react';
+import React, {
+  useContext,
+  createRef,
+  useEffect,
+  forwardRef,
+  useRef,
+} from 'react';
 import {
   StyleSheet,
   Text,
@@ -6,6 +12,7 @@ import {
   Button,
   TouchableOpacity,
   FlatList,
+  ScrollView,
 } from 'react-native';
 import MainCtx from '../context/MainCtx';
 import Bid from './Bid';
@@ -13,10 +20,8 @@ import Bid from './Bid';
 export default function BidList(props) {
   const {menuTitle, collection} = useContext(MainCtx);
   const bids = collection[menuTitle];
-
-  const {bidListRef} = props;
-
-  console.log('props', props);
+  const bidListRef = createRef();
+  const prevHeight = useRef(0);
 
   return (
     <View style={styles.bidListContainer}>
@@ -26,6 +31,12 @@ export default function BidList(props) {
           data={bids}
           renderItem={({item}) => <Bid {...item} />}
           keyExtractor={(item) => item.bidId}
+          onContentSizeChange={(width, height) => {
+            if (prevHeight.current < height) {
+              bidListRef.current.scrollToEnd();
+            }
+            prevHeight.current = height;
+          }}
         />
       ) : (
         <Text style={styles.noBids}>- No bids added -</Text>
