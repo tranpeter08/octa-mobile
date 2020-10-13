@@ -1,14 +1,11 @@
-import React, {Component, createRef, forwardRef, useRef} from 'react';
-import {StyleSheet, Text, View, Button, TouchableOpacity} from 'react-native';
+import React, {Component, createRef} from 'react';
+import {StyleSheet, View, Dimensions} from 'react-native';
 import {WebView} from 'react-native-webview';
 import script from '../scripts/injectedJS';
 import StorageService from '../services/Storage';
-import Menu from '../components/Menu';
 import asyncHandlerJSON from '../utils/asyncHandler';
-import FavoritesButton from '../components/FavoritesButton';
-import AsyncStorage from '@react-native-community/async-storage';
 import MainCtx from '../context/MainCtx';
-import SimpleButton from '../components/SimpleButton';
+import MenuContainer from '../components/MenuContainer';
 
 export default class Webview extends Component {
   defaultState = {
@@ -17,10 +14,26 @@ export default class Webview extends Component {
     employeeId: null,
     menuTitle: null,
     collection: null,
+    orientation: 'portrait'
   };
 
   state = this.defaultState;
   webview = createRef({});
+
+  componentDidMount() {
+    Dimensions.addEventListener('change', this.detectOrientation)
+  }
+
+  componentWillUnmount() {
+    Dimensions.removeEventListener('change', this.detectOrientation)
+  }
+
+  detectOrientation = ({window, screen}) => {
+    const {width, height} = screen;
+    const orientation = height >= width ? 'portrait' : 'landscape'; 
+
+    this.setState({orientation});
+  }
 
   toggleMenu = (params) => {
     this.setState((state) => {
@@ -97,29 +110,18 @@ export default class Webview extends Component {
   };
 
   render = () => {
-    const {menuTitle, collection, employeeId} = this.state;
+    const {orientation} = this.state;
 
     return (
       <MainCtx.Provider
         value={{
-          employeeId,
-          menuTitle,
-          collection,
+          ...this.state,
           webView: this.webview,
           toggleMenu: this.toggleMenu,
           getAllBids: this.getAllBids,
         }}
       >
-        <View style={styles.screen}>
-          {this.state.ssaEnabled && (
-            <View style={styles.menuContainer}>
-              {this.state.showMenu ? (
-                <Menu />
-              ) : (
-                <SimpleButton title="Favorites" onPress={this.toggleMenu} />
-              )}
-            </View>
-          )}
+        <View style={[styles.screen, styles[orientation]]}>
           <WebView
             style={styles.webView}
             source={{
@@ -134,6 +136,7 @@ export default class Webview extends Component {
             ref={this.webview}
           />
         </View>
+        <MenuContainer />
       </MainCtx.Provider>
     );
   };
@@ -141,17 +144,16 @@ export default class Webview extends Component {
 
 const styles = StyleSheet.create({
   screen: {
-    paddingTop: 40,
     flex: 1,
     backgroundColor: 'black',
   },
   webView: {
     flex: 1,
   },
-  menuContainer: {
-    position: 'absolute',
-    bottom: 10,
-    left: 10,
-    zIndex: 1,
+  portrait: {
+    paddingVertical: 40,
   },
+  landscape: {
+    paddingHorizontal: 40
+  }
 });
