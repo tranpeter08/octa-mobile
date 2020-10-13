@@ -21,7 +21,6 @@ export default class Webview extends Component {
 
   state = this.defaultState;
   webview = createRef({});
-  bidListRef = createRef({});
 
   toggleMenu = (params) => {
     this.setState((state) => {
@@ -44,11 +43,7 @@ export default class Webview extends Component {
       const {type, payload} = parsed;
 
       switch (type) {
-        case 'SET_STATE':
-          return this.setStateFromWebview(payload);
-
         case 'SSA_ENABLE':
-          console.log('SSA enabled');
           return this.enableSSA(payload);
 
         case 'ADD_BID':
@@ -72,7 +67,6 @@ export default class Webview extends Component {
     return this.setState(
       (state) => ({...state, ...payload}),
       async () => {
-        console.log('employeeId: ', this.state.employeeId);
         await this.getAllBids(this.state.employeeId);
       }
     );
@@ -84,21 +78,14 @@ export default class Webview extends Component {
     );
 
     if (collection) {
-      this.setState(
-        (state) => ({collection}),
-        () => {
-          // scroll to bottom
-          // this.bidListRef.scrollToEnd();
-          console.log('ref: ', this.bidListRef);
-        }
-      );
+      this.setState({collection});
     }
   };
 
-  addBid = async (data) => {
+  addBid = async (bidInfo) => {
     const {employeeId, menuTitle, collection} = this.state;
     const [done, error] = await asyncHandlerJSON(
-      StorageService.addBid(employeeId, menuTitle, collection, data)
+      StorageService.addBid(bidInfo, employeeId, menuTitle, collection)
     );
 
     if (error) {
@@ -109,18 +96,8 @@ export default class Webview extends Component {
     this.getAllBids();
   };
 
-  setStateFromWebview(payload) {
-    console.log('setstate from webview');
-    this.setState((state) => ({...state, ...payload}));
-  }
-
-  setBidListRef = (bidListRef) => {
-    this.bidListRef = bidListRef;
-  };
-
-  render() {
+  render = () => {
     const {menuTitle, collection, employeeId} = this.state;
-    console.log('state: ', this.state);
 
     return (
       <MainCtx.Provider
@@ -131,45 +108,44 @@ export default class Webview extends Component {
           webView: this.webview,
           toggleMenu: this.toggleMenu,
           getAllBids: this.getAllBids,
-          bidListRef: this.bidListRef,
         }}
       >
-        {this.state.ssaEnabled && (
-          <View style={styles.menuContainer}>
-            {this.state.showMenu ? (
-              <Menu
-                ref={this.bidListRef}
-                webView={this.webview}
-                toggleMenu={this.toggleMenu}
-                data={this.state.data}
-                menuTitle={this.state.menuTitle}
-              />
-            ) : (
-              <SimpleButton title="Favorites" onPress={this.toggleMenu} />
-            )}
-          </View>
-        )}
-        <WebView
-          style={styles.webView}
-          source={{
-            uri: 'https://coachopselfserv.octa.net/selfservice',
-          }}
-          injectedJavaScript={script}
-          onMessage={this.onMessage}
-          onError={(syntheticEvent) => {
-            const {nativeEvent} = syntheticEvent;
-            console.warn('WebView error: ', nativeEvent);
-          }}
-          ref={this.webview}
-        />
+        <View style={styles.screen}>
+          {this.state.ssaEnabled && (
+            <View style={styles.menuContainer}>
+              {this.state.showMenu ? (
+                <Menu />
+              ) : (
+                <SimpleButton title="Favorites" onPress={this.toggleMenu} />
+              )}
+            </View>
+          )}
+          <WebView
+            style={styles.webView}
+            source={{
+              uri: 'https://coachopselfserv.octa.net/selfservice',
+            }}
+            injectedJavaScript={script}
+            onMessage={this.onMessage}
+            onError={(syntheticEvent) => {
+              const {nativeEvent} = syntheticEvent;
+              console.warn('WebView error: ', nativeEvent);
+            }}
+            ref={this.webview}
+          />
+        </View>
       </MainCtx.Provider>
     );
-  }
+  };
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    paddingTop: 40,
+    flex: 1,
+    backgroundColor: 'black',
+  },
   webView: {
-    marginTop: 20,
     flex: 1,
   },
   menuContainer: {
