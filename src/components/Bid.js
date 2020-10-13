@@ -7,10 +7,15 @@ import asyncHandlerJSON from '../utils/asyncHandler';
 import BidDetail from './BidDetail';
 
 export default function Bid({bidId, daysOff, totalSplit, totalWork}) {
-  const {getAllBids, menuTitle, employeeId} = useContext(MainCtx);
-  async function handlePress() {
+  const {getAllBids, menuTitle, employeeId, collection} = useContext(MainCtx);
+  async function handleRemove() {
     // remove from database and update list
-    const [done, error] = await Storage.removeBid(employeeId, menuTitle, bidId);
+    const [done, error] = await Storage.removeBid(
+      bidId,
+      employeeId,
+      menuTitle,
+      collection
+    );
 
     if (error) {
       return alert(error.message);
@@ -30,7 +35,7 @@ export default function Bid({bidId, daysOff, totalSplit, totalWork}) {
       <View style={styles.removeButtonContainer}>
         <SimpleButton
           title="Remove"
-          onPress={handlePress}
+          onPress={handleRemove}
           containerStyle={styles.bidButton}
           textStyle={styles.bidButtonText}
         />
