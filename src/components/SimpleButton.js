@@ -1,19 +1,29 @@
 import React from 'react';
-import {StyleSheet, Text, View, Button, TouchableOpacity} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity} from 'react-native';
+import {blue} from './styles/colors';
 
 export default function SimpleButton({
   onPress,
   containerStyle,
   textStyle,
   title,
+  disabled
 }) {
   return (
     <>
       <TouchableOpacity
         onPress={onPress}
-        style={[styles.touchable, containerStyle]}
+        style={[styles.touchable, containerStyle, disabled && styles.disabledTouchable]}
+        disabled={disabled}
       >
-        <Text style={[styles.text, textStyle]}>{title}</Text>
+        <Text style={[
+          styles.text, 
+          textStyle, 
+          disabled && styles.disabledText
+          ]}
+        >
+          {title}
+        </Text>
       </TouchableOpacity>
     </>
   );
@@ -26,8 +36,15 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   touchable: {
-    backgroundColor: '#0159c6',
+    backgroundColor: blue,
     paddingHorizontal: 8,
     paddingVertical: 4,
   },
+  disabledText: {
+    color: 'grey',
+  },
+  disabledTouchable: {
+    backgroundColor: 'lightgrey',
+    borderColor: 'lightgrey'
+  }
 });
