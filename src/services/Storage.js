@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import asyncHandlerJSON from '../utils/asyncHandler';
 
 export default {
-  async addBid(employeeId, menuTitle, collection, bidInfo) {
+  async addBid(bidInfo, employeeId, menuTitle, collection) {
     const oldbids = collection[menuTitle] || [];
 
     if (oldbids.length) {
@@ -33,14 +33,12 @@ export default {
     return '{}';
   },
 
-  async removeBid(employeeId, menuTitle, bidId) {
+  async removeBid(bidId, employeeId, menuTitle, collection) {
     try {
       const bidsJSON = await this.getAllBids(employeeId);
       const bids = JSON.parse(bidsJSON);
       const currentBids = bids[menuTitle];
       let match = false;
-
-      console.log({bids});
 
       const results = currentBids.filter((bid) => {
         if (bid.bidId === bidId) {
@@ -56,11 +54,24 @@ export default {
       }
 
       bids[menuTitle] = results;
-      console.log(bids);
 
       await AsyncStorage.setItem(employeeId, JSON.stringify(bids));
-      console.log(bids);
 
+      return [1, null];
+    } catch (error) {
+      return [null, error];
+    }
+  },
+
+  async clearBids(employeeId = '', menuTitle = '', collection = {}) {
+    try {
+      if (!menuTitle || !employeeId) {
+        throw new Error('Missing employeeId or menuTitle');
+      }
+
+      collection[menuTitle] = [];
+      await AsyncStorage.setItem(employeeId, JSON.stringify(collection));
+      
       return [1, null];
     } catch (error) {
       return [null, error];
